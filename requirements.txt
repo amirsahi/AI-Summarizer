@@ -1,0 +1,24 @@
+# Core LLM pipeline
+langchain>=0.3.0
+langchain-openai>=0.3.27   # integration layer :contentReference[oaicite:0]{index=0}
+langchain-core
+langchain-community
+openai>=1.30.0
+langchain-google-genai
+
+# Scraping / parsing
+beautifulsoup4>=4.12.3
+requests>=2.31.0
+
+# Front‑ends
+streamlit>=1.35.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# Export
+fpdf2>=2.7.8               # tiny PDF lib
+python-dotenv
+
+# Notion integration
+notion-client     # official Python SDK :contentReference[oaicite:1]{index=1}
+pydantic>=2.7.1
