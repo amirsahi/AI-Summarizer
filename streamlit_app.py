@@ -13,8 +13,8 @@ run = st.button("Summarize")
 if run and url:
     with st.spinner("Crunching..."):
         result = summarise(url, mode=mode)
-    st.subheader(result["title"] or "Untitled")
-    st.write(result["summary"])
+    st.subheader("summary")
+    st.write(result)
 
     col1, col2, col3 = st.columns(3)
     with col1:

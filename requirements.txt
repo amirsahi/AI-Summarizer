@@ -22,3 +22,7 @@ python-dotenv
 # Notion integration
 notion-client     # official Python SDK :contentReference[oaicite:1]{index=1}
 pydantic>=2.7.1
+
+# Fetcher
+newspaper3k
+lxml[html_clean]

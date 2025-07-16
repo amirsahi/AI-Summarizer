@@ -9,8 +9,10 @@ from summarizer.notion_exporter import push_to_notion
 
 
 def main():
-    p = argparse.ArgumentParser(prog="smart‑summarizer",
-                                description="Summarise any web article with multiple output modes.")
+    p = argparse.ArgumentParser(
+        prog="smart-summarizer",
+        description="Summarise any web article with multiple output modes."
+    )
     p.add_argument("url")
     p.add_argument("-m", "--mode", choices=MODES.__args__, default="detailed",
                    help="Summary style (default: detailed)")
@@ -21,7 +23,14 @@ def main():
     args = p.parse_args()
 
     summary = summarise(args.url, mode=args.mode, model=args.model)
-    print("\n— SUMMARY —\n")
+
+    # Debug prints
+    print(f"🧪 URL: {args.url}")
+    print(f"🧪 Mode: {args.mode}")
+    print(f"🧪 Model: {args.model}")
+    print(f"🧪 Meta title: {summary['meta'].get('title', 'No title')}\n")
+
+    print("\n— SUMMARY —\n")
     print(summary["summary"])
 
     if args.md:

@@ -20,7 +20,7 @@ def _base_summary(docs, llm):
     )
     doc_chunks = splitter.split_documents(docs)
     chain = load_summarize_chain(llm, chain_type="map_reduce")
-    return chain.run(doc_chunks).strip()
+    return chain.invoke({"input_documents": doc_chunks})["output_text"].strip()
 
 
 def summarise(
@@ -33,28 +33,42 @@ def summarise(
     Summarise *url* in the requested mode. Returns dict with metadata + summary.
     """
     docs, meta = load_article(url)
-    llm = llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=temperature)
+
+    # Check if article content is empty or missing
+    if not docs or not docs[0].page_content.strip():
+        return {
+            "summary": "⚠️ Article content could not be extracted.",
+            "meta": meta,
+            "content": "",
+        }
+
+    # Initialize the LLM - you can replace the model name here as needed
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=temperature)
 
     if mode == "detailed":
-        meta["summary"] = _base_summary(docs, llm)
-        return meta
+        summary = _base_summary(docs, llm)
+    else:
+        base = _base_summary(docs, llm)
 
-    # All other modes build on top of a base summary -------------------------
-    base = _base_summary(docs, llm)
+        prompts = {
+            "tldr": f"Give a one‑sentence TL;DR for the following:\n\n{base}",
+            "bullet": f"Convert the text below into 5–7 concise bullet points:\n\n{base}",
+            "executive": (
+                f"Rewrite the text below as an executive summary: "
+                f"high‑level insights in 3–5 bullets.\n\n{base}"
+            ),
+            "action": (
+                f"List concrete action items a reader could take based on "
+                f"the following summary:\n\n{base}"
+            ),
+        }
 
-    prompts = {
-        "tldr":    f"Give a one‑sentence TL;DR for the following:\n\n{base}",
-        "bullet":  f"Convert the text below into 5–7 concise bullet points:\n\n{base}",
-        "executive": (
-            f"Rewrite the text below as an executive summary: "
-            f"high‑level insights in 3–5 bullets.\n\n{base}"
-        ),
-        "action": (
-            f"List concrete action items a reader could take based on "
-            f"the following summary:\n\n{base}"
-        ),
+        summary = llm.invoke(prompts[mode]).content.strip()
+
+    return {
+        "summary": summary,
+        "meta": meta,
+        "content": docs[0].page_content,
     }
 
-    meta["summary"] = llm.invoke(prompts[mode]).content.strip()
-    return meta
 
